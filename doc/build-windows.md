@@ -38,5 +38,11 @@ To build executables for Windows 64-bit:
     ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32
     make
 
+Optional for Windows 64-bit(QT 5.9.9):
+At the top of the file (just after includes), add:
+
+    nano /root/compile/2x2Coin/depends/work/build/x86_64-w64-mingw32/qt/5.9.9-a5af60d88a5/qtbase/src/corelib/tools/qbytearraymatcher.h
+    #include <limits>
+    
 For further documentation on the depends system see [README.md](../depends/README.md) in the depends directory.
 
