@@ -1792,11 +1792,11 @@ CAmount GetProofOfWorkSubsidy()
     }
 
     if (nBlockHeight > 100000 && nBlockHeight <= 262800) {
-        return 20 * COIN;
+        return 2 * COIN;
     }
 
     if (nBlockHeight > 262800 && nBlockHeight <= 525600) {
-        return 60 * COIN;
+        return 6 * COIN;
     }
 
     if (nBlockHeight > 525600 && nBlockHeight <= 788400) {
@@ -1880,11 +1880,11 @@ CAmount GetProofOfStakeSubsidy()
     }
 
     if (nBlockHeight > 100000 && nBlockHeight <= 262800) {
-        return 180 * COIN;
+        return 130 * COIN;
     }
 
     if (nBlockHeight > 100000 && nBlockHeight <= 525600) {
-        return 340 * COIN;
+        return 260 * COIN;
     }
 
     if (nBlockHeight > 525600 && nBlockHeight <= 788400) {
