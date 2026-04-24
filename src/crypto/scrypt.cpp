@@ -253,7 +253,8 @@ static inline void xor_salsa8(uint32_t B[16], const uint32_t Bx[16])
 	B[15] += x15;
 }
 
-void scrypt_1024_1_1_256_sp_generic(const char *input, char *output, char *scratchpad)
+// Nova versão genérica que aceita N variável
+void scrypt_N_1_1_256_sp_generic(const char *input, char *output, char *scratchpad, unsigned int N)
 {
 	uint8_t B[128];
 	uint32_t X[32];
@@ -267,13 +268,16 @@ void scrypt_1024_1_1_256_sp_generic(const char *input, char *output, char *scrat
 	for (k = 0; k < 32; k++)
 		X[k] = le32dec(&B[4 * k]);
 
-	for (i = 0; i < 1024; i++) {
+	// i < 1024 alterado para i < N
+	for (i = 0; i < N; i++) {
 		memcpy(&V[i * 32], X, 128);
 		xor_salsa8(&X[0], &X[16]);
 		xor_salsa8(&X[16], &X[0]);
 	}
-	for (i = 0; i < 1024; i++) {
-		j = 32 * (X[16] & 1023);
+	// i < 1024 alterado para i < N
+	for (i = 0; i < N; i++) {
+		// A máscara (X[16] & 1023) deve ser (N - 1)
+		j = 32 * (X[16] & (N - 1));
 		for (k = 0; k < 32; k++)
 			X[k] ^= V[j + k];
 		xor_salsa8(&X[0], &X[16]);
@@ -322,8 +326,10 @@ void scrypt_detect_sse2()
 }
 #endif
 
-void scrypt_1024_1_1_256(const char *input, char *output)
+void scrypt_1024_1_1_256(const char *input, char *output, unsigned int N)
 {
-	char scratchpad[SCRYPT_SCRATCHPAD_SIZE];
-    scrypt_1024_1_1_256_sp(input, output, scratchpad);
+    // O tamanho do scratchpad precisa ser suficiente para o maior N que você planeja usar
+    // Se SCRYPT_SCRATCHPAD_SIZE for fixo para N=1024, você precisará aumentá-lo no scrypt.h
+	char scratchpad[131072 + 63]; // Exemplo para N=4096 (4096 * 32 bytes)
+    scrypt_N_1_1_256_sp_generic(input, output, scratchpad, N);
 }
