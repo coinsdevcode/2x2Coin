@@ -33,9 +33,10 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, const CBlockHe
     unsigned int nTargetLimit = GetTargetLimit(pindexLast->GetBlockTime(), params, fProofOfStake).GetCompact();
 
     // Genesis block
-    if (pindexLast == NULL)
+    if (pindexLast && pindexLast->nHeight + 1 == 101500) {
         return UintToArith256(params.powLimit).GetCompact();
-
+    }
+    
     const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
 
     if (pindexPrev->pprev == NULL)
@@ -43,7 +44,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, const CBlockHe
     const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
     if (pindexPrevPrev->pprev == NULL)
         return nTargetLimit; // second block
-
+    
     return CalculateNextTargetRequired(pindexPrev, pindexPrevPrev->GetBlockTime(), params, fProofOfStake);
 }
 
