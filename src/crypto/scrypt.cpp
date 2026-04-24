@@ -330,15 +330,11 @@ void scrypt_1024_1_1_256(const char *input, char *output, unsigned int N)
 {
     char scratchpad[SCRYPT_SCRATCHPAD_SIZE];
     
-    if (N == 1024) {
-        // Se N for o padrão, pode usar a detecção de SSE2 (mais rápido)
-        #if defined(USE_SSE2)
-            scrypt_1024_1_1_256_sp(input, output, scratchpad);
-        #else
-            scrypt_N_1_1_256_sp_generic(input, output, scratchpad, 1024);
-        #endif
-    } else {
-        // Para N diferente (ASIC resistance), usa a função genérica que aceita N variável
+    #if defined(USE_SSE2)
+        // Se o processador suportar SSE2, usa a versão otimizada com o N atual
+        scrypt_N_1_1_256_sp_sse2(input, output, scratchpad, N);
+    #else
+        // Caso contrário, usa a genérica
         scrypt_N_1_1_256_sp_generic(input, output, scratchpad, N);
-    }
+    #endif
 }
