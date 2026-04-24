@@ -328,8 +328,17 @@ void scrypt_detect_sse2()
 
 void scrypt_1024_1_1_256(const char *input, char *output, unsigned int N)
 {
-    // O tamanho do scratchpad precisa ser suficiente para o maior N que você planeja usar
-    // Se SCRYPT_SCRATCHPAD_SIZE for fixo para N=1024, você precisará aumentá-lo no scrypt.h
-	char scratchpad[131072 + 63]; // Exemplo para N=4096 (4096 * 32 bytes)
-    scrypt_N_1_1_256_sp_generic(input, output, scratchpad, N);
+    char scratchpad[SCRYPT_SCRATCHPAD_SIZE];
+    
+    if (N == 1024) {
+        // Se N for o padrão, pode usar a detecção de SSE2 (mais rápido)
+        #if defined(USE_SSE2)
+            scrypt_1024_1_1_256_sp(input, output, scratchpad);
+        #else
+            scrypt_N_1_1_256_sp_generic(input, output, scratchpad, 1024);
+        #endif
+    } else {
+        // Para N diferente (ASIC resistance), usa a função genérica que aceita N variável
+        scrypt_N_1_1_256_sp_generic(input, output, scratchpad, N);
+    }
 }
