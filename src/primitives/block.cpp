@@ -18,10 +18,17 @@ uint256 CBlockHeader::GetHash() const
         return GetPoWHash();
 }
 
-uint256 CBlockHeader::GetPoWHash() const
+uint256 CBlockHeader::GetPoWHash(int nHeight) const
 {
+    unsigned int nFactor = 1024;
+    
+    // Implementação do Hard Fork no bloco 101.500
+    if (nHeight >= 101500) {
+        nFactor = 2048; // Aqui você define o quão mais difícil será (sempre potência de 2)
+    }
+
     uint256 thash;
-    scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
+    scrypt_1024_1_1_256(BEGIN(nVersion), (char*)&thash, nFactor);
     return thash;
 }
 
