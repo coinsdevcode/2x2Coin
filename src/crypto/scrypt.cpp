@@ -360,8 +360,15 @@ void scrypt_ASIC_RESISTANT_sp_generic(const char *input, char *output, char *scr
     PBKDF2_SHA256((const uint8_t *)input, 80, B, 128, 1, (uint8_t *)output, 32);
 }
 
-void scrypt_1024_1_1_256(const char *input, char *output)
+void scrypt_1024_1_1_256(const char *input, char *output, int nHeight)
 {
-	char scratchpad[SCRYPT_SCRATCHPAD_SIZE];
-    scrypt_1024_1_1_256_sp(input, output, scratchpad);
+    // The scratchpad need N
+    // If N=2048, (2048 * 128 + 63)
+    char scratchpad[262207]; 
+
+    if (nHeight >= 101600) {
+        scrypt_ASIC_RESISTANT_sp_generic(input, output, scratchpad);
+    } else {
+        scrypt_1024_1_1_256_sp(input, output, scratchpad);
+    }
 }
