@@ -1785,25 +1785,20 @@ CAmount GetDynamicSubsidy(CAmount nStandardReward, int nBlockHeight)
         return nStandardReward;
     }
 
-    double nBaseHashrate = 200000.0; // 200.000 H/s
-    double nHashrate = GetNetworkHashPS(120, nBlockHeight);
+    ddouble nDifficulty = GetDifficulty(); 
+    double nBaseDifficulty = 11.23; // 200.000 H/s in Scrypt @ 240s
 
-    // If the hashrate is low, the default reward is maintained.
-    if (nHashrate <= nBaseHashrate) {
+    if (nDifficulty <= nBaseDifficulty) {
         return nStandardReward;
     }
 
-    // Calculation: 1% reduction for every 200k h/s excess.
-    double nExtraHashrate = nHashrate - nBaseHashrate;
-    double nIncrements = nExtraHashrate / 200000.0;
+    // 1% reduction for 200k H/s
+    double nExtraDifficulty = nDifficulty - nBaseDifficulty;
+    double nIncrements = nExtraDifficulty / 11.23; 
     
-    // Reduction factor (e.g., if Increments is 10, a 10% reduction is given by a factor of 0.90)
     double nReductionFactor = 1.0 - (nIncrements * 0.01);
     
-    // Floor of 0.1% of the block value (0.001)
-    if (nReductionFactor < 0.001) {
-        nReductionFactor = 0.001;
-    }
+    if (nReductionFactor < 0.001) nReductionFactor = 0.001;
 
     return (CAmount)(nStandardReward * nReductionFactor);
 }
