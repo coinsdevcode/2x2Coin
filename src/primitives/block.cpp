@@ -13,25 +13,19 @@
 
 uint256 CBlockHeader::GetHash() const
 {
-    if (nVersion > 6)
-            return SerializeHash(*this);
-        return GetPoWHash();
+        if (nVersion > 6)
+        return SerializeHash(*this);
+    
+        return GetPoWHash(0); 
 }
 
-uint256 CBlockHeader::GetPoWHash(int nHeight) const
+uint256 CBlockHeader::GetPoWHash(int nHeight) const // Add nHeight
 {
-    unsigned int nFactor = 1024;
-    
-    // Implementação do Hard Fork no bloco 101.500
-    if (nHeight >= 101500) {
-        nFactor = 2048; // Aqui você define o quão mais difícil será (sempre potência de 2)
-    }
-
     uint256 thash;
-    scrypt_1024_1_1_256(BEGIN(nVersion), (char*)&thash, nFactor);
+    //nHeight for scrypt.cpp
+    scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash), nHeight);
     return thash;
 }
-
 std::string CBlock::ToString() const
 {
     std::stringstream s;
