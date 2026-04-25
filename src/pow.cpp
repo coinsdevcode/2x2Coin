@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "pow.h"
-#include "crypto/scrypt.h"
+
 #include "arith_uint256.h"
 #include "chain.h"
 #include "primitives/block.h"
@@ -30,20 +30,12 @@ static arith_uint256 GetTargetLimit(int64_t nTime, const Consensus::Params& para
 
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool fProofOfStake)
 {
-    if (pindexLast && pindexLast->nHeight + 1 == 101500) {
-        return UintToArith256(params.powLimit).GetCompact();
-    }
-    // -------------------------------
-
     unsigned int nTargetLimit = GetTargetLimit(pindexLast->GetBlockTime(), params, fProofOfStake).GetCompact();
 
     // Genesis block
     if (pindexLast == NULL)
         return UintToArith256(params.powLimit).GetCompact();
-    
-    // ... restante da função permanece igual ...
-    }
-    
+
     const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
 
     if (pindexPrev->pprev == NULL)
@@ -51,7 +43,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, const CBlockHe
     const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
     if (pindexPrevPrev->pprev == NULL)
         return nTargetLimit; // second block
-    
+
     return CalculateNextTargetRequired(pindexPrev, pindexPrevPrev->GetBlockTime(), params, fProofOfStake);
 }
 
