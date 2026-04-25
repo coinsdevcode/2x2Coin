@@ -1778,7 +1778,37 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
     return true;
 }
 
-CAmount GetProofOfWorkSubsidy()
+CAmount GetDynamicSubsidy(CAmount nStandardReward, int nBlockHeight)
+{
+    // The rule only comes into effect from block 101600 onwards.
+    if (nBlockHeight < 101600) {
+        return nStandardReward;
+    }
+
+    double nBaseHashrate = 200000.0; // 200.000 H/s
+    double nHashrate = GetNetworkHashPS(120, nBlockHeight);
+
+    // If the hashrate is low, the default reward is maintained.
+    if (nHashrate <= nBaseHashrate) {
+        return nStandardReward;
+    }
+
+    // Calculation: 1% reduction for every 200k h/s excess.
+    double nExtraHashrate = nHashrate - nBaseHashrate;
+    double nIncrements = nExtraHashrate / 200000.0;
+    
+    // Reduction factor (e.g., if Increments is 10, a 10% reduction is given by a factor of 0.90)
+    double nReductionFactor = 1.0 - (nIncrements * 0.01);
+    
+    // Floor of 0.1% of the block value (0.001)
+    if (nReductionFactor < 0.001) {
+        nReductionFactor = 0.001;
+    }
+
+    return (CAmount)(nStandardReward * nReductionFactor);
+}
+
+CAmount GetProofOfWorkSubsidy(int nBlockHeight)
 {
     int nBlockHeight = chainActive.Height() + 1;
 
@@ -1787,40 +1817,36 @@ CAmount GetProofOfWorkSubsidy()
         return 11000000 * COIN;
     }
 
-    if (nBlockHeight > 1 && nBlockHeight <= 100000) {
+    if (nBlockHeight > 1 && nBlockHeight <= 262800) {
         return 100 * COIN;
     }
 
-    if (nBlockHeight > 100000 && nBlockHeight <= 262800) {
-        return 2 * COIN;
-    }
-
     if (nBlockHeight > 262800 && nBlockHeight <= 525600) {
-        return 6 * COIN;
-    }
-
-    if (nBlockHeight > 525600 && nBlockHeight <= 788400) {
         return 200 * COIN;
     }
 
+    if (nBlockHeight > 525600 && nBlockHeight <= 788400) {
+        return 550 * COIN;
+    }
+
     if (nBlockHeight > 788400 && nBlockHeight <= 1051200) {
-        return 650 * COIN;
+        return 1300 * COIN;
     }
 
     if (nBlockHeight > 1051200 && nBlockHeight <= 1314000) {
-        return 1950 * COIN;
+        return 3250 * COIN;
     }
 
     if (nBlockHeight > 1314000 && nBlockHeight <= 1576800) {
-        return 5600 * COIN;
+        return 8000 * COIN;
     }
 
     if (nBlockHeight > 1576800 && nBlockHeight <= 1839600) {
-        return 2800 * COIN;
+        return 3500 * COIN;
     }
 
     if (nBlockHeight > 1839600 && nBlockHeight <= 2102400) {
-        return 4050 * COIN;
+        return 4500 * COIN;
     }
 
     if (nBlockHeight > 2102400 && nBlockHeight <= 2365200) {
@@ -1866,49 +1892,47 @@ CAmount GetProofOfWorkSubsidy()
     if (nBlockHeight > 4730400 && nBlockHeight <= 4993200) {
         return 55000 * COIN;
     }
-
+    else {
     // Year 20+ (tail emission)
     return 1000 * COIN;
+    }
+    return GetDynamicSubsidy(nSubsidy, nBlockHeight);
 }
 
 CAmount GetProofOfStakeSubsidy()
 {
     int nBlockHeight = chainActive.Height() + 1;
 
-    if (nBlockHeight > 1 && nBlockHeight <= 100000) {
+    if (nBlockHeight > 1 && nBlockHeight <= 262800) {
         return 100 * COIN;
     }
 
-    if (nBlockHeight > 100000 && nBlockHeight <= 262800) {
-        return 130 * COIN;
-    }
-
-    if (nBlockHeight > 100000 && nBlockHeight <= 525600) {
-        return 260 * COIN;
+    if (nBlockHeight > 262800 && nBlockHeight <= 525600) {
+        return 200 * COIN;
     }
 
     if (nBlockHeight > 525600 && nBlockHeight <= 788400) {
-        return 800 * COIN;
+        return 550 * COIN;
     }
 
     if (nBlockHeight > 788400 && nBlockHeight <= 1051200) {
-        return 1950 * COIN;
+        return 1300 * COIN;
     }
 
     if (nBlockHeight > 1051200 && nBlockHeight <= 1314000) {
-        return 4550 * COIN;
+        return 3250 * COIN;
     }
 
     if (nBlockHeight > 1314000 && nBlockHeight <= 1576800) {
-        return 10400 * COIN;
+        return 8000 * COIN;
     }
 
     if (nBlockHeight > 1576800 && nBlockHeight <= 1839600) {
-        return 4200 * COIN;
+        return 3500 * COIN;
     }
 
     if (nBlockHeight > 1839600 && nBlockHeight <= 2102400) {
-        return 4950 * COIN;
+        return 4500 * COIN;
     }
 
     if (nBlockHeight > 2102400 && nBlockHeight <= 2365200) {
