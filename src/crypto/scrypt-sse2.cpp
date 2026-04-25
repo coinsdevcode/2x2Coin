@@ -112,15 +112,15 @@ void scrypt_1024_1_1_256_sp_sse2(const char *input, char *output, char *scratchp
 		}
 	}
 
-	for (i = 0; i < N; i++) { // 1024 for N
-    	for (k = 0; k < 8; k++)
-        V[i * 8 + k] = X.i128[k];
+	for (i = 0; i < 1024; i++) {
+		for (k = 0; k < 8; k++)
+			V[i * 8 + k] = X.i128[k];
 		xor_salsa8_sse2(&X.i128[0], &X.i128[4]);
 		xor_salsa8_sse2(&X.i128[4], &X.i128[0]);
 	}
-	for (i = 0; i < N; i++) { // 1024 for N
-    	j = 8 * (X.u32[16] & (N - 1)); // 1023 for (N - 1)
-    	for (k = 0; k < 8; k++)
+	for (i = 0; i < 1024; i++) {
+		j = 8 * (X.u32[16] & 1023);
+		for (k = 0; k < 8; k++)
 			X.i128[k] = _mm_xor_si128(X.i128[k], V[j + k]);
 		xor_salsa8_sse2(&X.i128[0], &X.i128[4]);
 		xor_salsa8_sse2(&X.i128[4], &X.i128[0]);
@@ -129,6 +129,10 @@ void scrypt_1024_1_1_256_sp_sse2(const char *input, char *output, char *scratchp
 	for (k = 0; k < 2; k++) {
 		for (i = 0; i < 16; i++) {
 			le32enc(&B[(k * 16 + (i * 5 % 16)) * 4], X.u32[k * 16 + i]);
+		}
+	}
+
+	PBKDF2_SHA256((const uint8_t *)input, 80, B, 128, 1, (uint8_t *)output, 32);
 		}
 	}
 
