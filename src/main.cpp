@@ -1778,7 +1778,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
     return true;
 }
 
-CAmount GetDynamicSubsidy(CAmount nStandardReward, int nBlockHeight)
+CAmount GetDynamicSubsidy(CAmount nStandardReward, int nHeight)
 {
     int nBlockHeight = chainActive.Height() + 1;
     // The rule only comes into effect from block 105000 onwards.
