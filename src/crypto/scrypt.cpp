@@ -322,53 +322,8 @@ void scrypt_detect_sse2()
 }
 #endif
 
-void scrypt_ASIC_RESISTANT_sp_generic(const char *input, char *output, char *scratchpad)
+void scrypt_1024_1_1_256(const char *input, char *output)
 {
-    uint8_t B[128];
-    uint32_t X[32];
-    uint32_t *V;
-    uint32_t i, j, k;
-
-    // N 2048 no ASIC
-    const uint32_t N_FACTOR = 2048; 
-
-    V = (uint32_t *)(((uintptr_t)(scratchpad) + 63) & ~ (uintptr_t)(63));
-
-    PBKDF2_SHA256((const uint8_t *)input, 80, (const uint8_t *)input, 80, 1, B, 128);
-
-    for (k = 0; k < 32; k++)
-        X[k] = le32dec(&B[4 * k]);
-
-    // Loop new N_FACTOR
-    for (i = 0; i < N_FACTOR; i++) {
-        memcpy(&V[i * 32], X, 128);
-        xor_salsa8(&X[0], &X[16]);
-        xor_salsa8(&X[16], &X[0]);
-    }
-    // New N_FACTOR
-    for (i = 0; i < N_FACTOR; i++) {
-        j = 32 * (X[16] & (N_FACTOR - 1)); // N_FACTOR - 1
-        for (k = 0; k < 32; k++)
-            X[k] ^= V[j + k];
-        xor_salsa8(&X[0], &X[16]);
-        xor_salsa8(&X[16], &X[0]);
-    }
-
-    for (k = 0; k < 32; k++)
-        le32enc(&B[4 * k], X[k]);
-
-    PBKDF2_SHA256((const uint8_t *)input, 80, B, 128, 1, (uint8_t *)output, 32);
-}
-
-void scrypt_1024_1_1_256(const char *input, char *output, int nHeight)
-{
-    // The scratchpad need N
-    // If N=2048, (2048 * 128 + 63)
-    char scratchpad[262207]; 
-
-    if (nHeight >= 101600) {
-        scrypt_ASIC_RESISTANT_sp_generic(input, output, scratchpad);
-    } else {
-        scrypt_1024_1_1_256_sp(input, output, scratchpad);
-    }
+	char scratchpad[SCRYPT_SCRATCHPAD_SIZE];
+    scrypt_1024_1_1_256_sp(input, output, scratchpad);
 }
