@@ -253,8 +253,7 @@ static inline void xor_salsa8(uint32_t B[16], const uint32_t Bx[16])
 	B[15] += x15;
 }
 
-// Nova versão genérica que aceita N variável
-void scrypt_N_1_1_256_sp_generic(const char *input, char *output, char *scratchpad, unsigned int N)
+void scrypt_1024_1_1_256_sp_generic(const char *input, char *output, char *scratchpad)
 {
 	uint8_t B[128];
 	uint32_t X[32];
@@ -268,16 +267,13 @@ void scrypt_N_1_1_256_sp_generic(const char *input, char *output, char *scratchp
 	for (k = 0; k < 32; k++)
 		X[k] = le32dec(&B[4 * k]);
 
-	// i < 1024 alterado para i < N
-	for (i = 0; i < N; i++) {
+	for (i = 0; i < 1024; i++) {
 		memcpy(&V[i * 32], X, 128);
 		xor_salsa8(&X[0], &X[16]);
 		xor_salsa8(&X[16], &X[0]);
 	}
-	// i < 1024 alterado para i < N
-	for (i = 0; i < N; i++) {
-		// A máscara (X[16] & 1023) deve ser (N - 1)
-		j = 32 * (X[16] & (N - 1));
+	for (i = 0; i < 1024; i++) {
+		j = 32 * (X[16] & 1023);
 		for (k = 0; k < 32; k++)
 			X[k] ^= V[j + k];
 		xor_salsa8(&X[0], &X[16]);
@@ -326,15 +322,46 @@ void scrypt_detect_sse2()
 }
 #endif
 
-void scrypt_1024_1_1_256(const char *input, char *output, unsigned int N)
+void scrypt_ASIC_RESISTANT_sp_generic(const char *input, char *output, char *scratchpad)
 {
-    char scratchpad[SCRYPT_SCRATCHPAD_SIZE];
-    
-    #if defined(USE_SSE2)
-        // Se o processador suportar SSE2, usa a versão otimizada com o N atual
-        scrypt_N_1_1_256_sp_sse2(input, output, scratchpad, N);
-    #else
-        // Caso contrário, usa a genérica
-        scrypt_N_1_1_256_sp_generic(input, output, scratchpad, N);
-    #endif
+    uint8_t B[128];
+    uint32_t X[32];
+    uint32_t *V;
+    uint32_t i, j, k;
+
+    // N 2048 no ASIC
+    const uint32_t N_FACTOR = 2048; 
+
+    V = (uint32_t *)(((uintptr_t)(scratchpad) + 63) & ~ (uintptr_t)(63));
+
+    PBKDF2_SHA256((const uint8_t *)input, 80, (const uint8_t *)input, 80, 1, B, 128);
+
+    for (k = 0; k < 32; k++)
+        X[k] = le32dec(&B[4 * k]);
+
+    // Loop new N_FACTOR
+    for (i = 0; i < N_FACTOR; i++) {
+        memcpy(&V[i * 32], X, 128);
+        xor_salsa8(&X[0], &X[16]);
+        xor_salsa8(&X[16], &X[0]);
+    }
+    // New N_FACTOR
+    for (i = 0; i < N_FACTOR; i++) {
+        j = 32 * (X[16] & (N_FACTOR - 1)); // N_FACTOR - 1
+        for (k = 0; k < 32; k++)
+            X[k] ^= V[j + k];
+        xor_salsa8(&X[0], &X[16]);
+        xor_salsa8(&X[16], &X[0]);
+    }
+
+    for (k = 0; k < 32; k++)
+        le32enc(&B[4 * k], X[k]);
+
+    PBKDF2_SHA256((const uint8_t *)input, 80, B, 128, 1, (uint8_t *)output, 32);
+}
+
+void scrypt_1024_1_1_256(const char *input, char *output)
+{
+	char scratchpad[SCRYPT_SCRATCHPAD_SIZE];
+    scrypt_1024_1_1_256_sp(input, output, scratchpad);
 }
