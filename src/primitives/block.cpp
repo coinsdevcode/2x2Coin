@@ -13,19 +13,18 @@
 
 uint256 CBlockHeader::GetHash() const
 {
-        if (nVersion > 6)
-        return SerializeHash(*this);
-    
-        return GetPoWHash(0); 
+    if (nVersion > 6)
+            return SerializeHash(*this);
+        return GetPoWHash();
 }
 
-uint256 CBlockHeader::GetPoWHash(int nHeight) const // Add nHeight
+uint256 CBlockHeader::GetPoWHash() const
 {
     uint256 thash;
-    //nHeight for scrypt.cpp
-    scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash), nHeight);
+    scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
     return thash;
 }
+
 std::string CBlock::ToString() const
 {
     std::stringstream s;
