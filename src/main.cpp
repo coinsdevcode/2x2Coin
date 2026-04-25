@@ -1785,7 +1785,7 @@ CAmount GetDynamicSubsidy(CAmount nStandardReward, int nBlockHeight)
         return nStandardReward;
     }
 
-    ddouble nDifficulty = GetDifficulty(); 
+    double nDifficulty = GetDifficulty(); 
     double nBaseDifficulty = 11.23; // 200.000 H/s in Scrypt @ 240s
 
     if (nDifficulty <= nBaseDifficulty) {
