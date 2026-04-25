@@ -1819,83 +1819,83 @@ CAmount GetProofOfWorkSubsidy()
     }
 
     if (nBlockHeight > 1 && nBlockHeight <= 262800) {
-        nSubsidy 100 * COIN;
+        nSubsidy = 100 * COIN;
     }
 
     if (nBlockHeight > 262800 && nBlockHeight <= 525600) {
-        nSubsidy 200 * COIN;
+        nSubsidy = 200 * COIN;
     }
 
     if (nBlockHeight > 525600 && nBlockHeight <= 788400) {
-        nSubsidy 550 * COIN;
+        nSubsidy = 550 * COIN;
     }
 
     if (nBlockHeight > 788400 && nBlockHeight <= 1051200) {
-        nSubsidy 1300 * COIN;
+        nSubsidy = 1300 * COIN;
     }
 
     if (nBlockHeight > 1051200 && nBlockHeight <= 1314000) {
-        nSubsidy 3250 * COIN;
+        nSubsidy = 3250 * COIN;
     }
 
     if (nBlockHeight > 1314000 && nBlockHeight <= 1576800) {
-        nSubsidy 8000 * COIN;
+        nSubsidy = 8000 * COIN;
     }
 
     if (nBlockHeight > 1576800 && nBlockHeight <= 1839600) {
-        nSubsidy 3500 * COIN;
+        nSubsidy = 3500 * COIN;
     }
 
     if (nBlockHeight > 1839600 && nBlockHeight <= 2102400) {
-        nSubsidy 4500 * COIN;
+        nSubsidy = 4500 * COIN;
     }
 
     if (nBlockHeight > 2102400 && nBlockHeight <= 2365200) {
-        nSubsidy 5600 * COIN;
+        nSubsidy = 5600 * COIN;
     }
 
     if (nBlockHeight > 2365200 && nBlockHeight <= 2628000) {
-        nSubsidy 7000 * COIN;
+        nSubsidy = 7000 * COIN;
     }
 
     if (nBlockHeight > 2628000 && nBlockHeight <= 2890800) {
-        nSubsidy 8800 * COIN;
+        nSubsidy = 8800 * COIN;
     }
 
     if (nBlockHeight > 2890800 && nBlockHeight <= 3153600) {
-        nSubsidy 11000 * COIN;
+        nSubsidy = 11000 * COIN;
     }
 
     if (nBlockHeight > 3153600 && nBlockHeight <= 3416400) {
-        nSubsidy 14080 * COIN;
+        nSubsidy = 14080 * COIN;
     }
 
     if (nBlockHeight > 3416400 && nBlockHeight <= 3679200) {
-        nSubsidy 17500 * COIN;
+        nSubsidy = 17500 * COIN;
     }
 
     if (nBlockHeight > 3679200 && nBlockHeight <= 3942000) {
-        nSubsidy 22500 * COIN;
+        nSubsidy = 22500 * COIN;
     }
 
     if (nBlockHeight > 3942000 && nBlockHeight <= 4204800) {
-        nSubsidy 28000 * COIN;
+        nSubsidy = 28000 * COIN;
     }
 
     if (nBlockHeight > 4204800 && nBlockHeight <= 4467600) {
-        nSubsidy 35500 * COIN;
+        nSubsidy = 35500 * COIN;
     }
 
     if (nBlockHeight > 4467600 && nBlockHeight <= 4730400) {
-        nSubsidy 44500 * COIN;
+        nSubsidy = 44500 * COIN;
     }
 
     if (nBlockHeight > 4730400 && nBlockHeight <= 4993200) {
-        nSubsidy 55000 * COIN;
+        nSubsidy = 55000 * COIN;
     }
     if (nBlockHeight > 4993200) {
     // Year 20+ (tail emission)
-    nSubsidy 1000 * COIN;
+    nSubsidy = 1000 * COIN;
     }
     return GetDynamicSubsidy(nSubsidy, nBlockHeight);
 }
