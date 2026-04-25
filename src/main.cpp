@@ -1778,22 +1778,27 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
     return true;
 }
 
-CAmount GetDynamicSubsidy(CAmount nStandardReward, int nHeight)
+CAmount GetDynamicSubsidy(CAmount nStandardReward, int nBlockHeight)
 {
-    int nBlockHeight = chainActive.Height() + 1;
     // The rule only comes into effect from block 105000 onwards.
     if (nBlockHeight < 102000) {
         return nStandardReward;
     }
 
-    double nDifficulty = GetDifficulty(); 
-    double nBaseDifficulty = 11.23; // 200.000 H/s in Scrypt @ 240s
+    double nDifficulty = 1.0;
+    if (chainActive.Tip() != NULL) {
+        int nShift = (chainActive.Tip()->nBits >> 24) & 0xff;
+        double dDiff = (double)0x0000ffff / (double)(chainActive.Tip()->nBits & 0x00ffffff);
+        while (nShift < 29) { dDiff *= 256.0; nShift++; }
+        while (nShift > 29) { dDiff /= 256.0; nShift--; }
+        nDifficulty = dDiff;
+    }
+    double nBaseDifficulty = 11.23;
 
     if (nDifficulty <= nBaseDifficulty) {
         return nStandardReward;
     }
 
-    // 1% reduction for 200k H/s
     double nExtraDifficulty = nDifficulty - nBaseDifficulty;
     double nIncrements = nExtraDifficulty / 11.23; 
     
@@ -1803,7 +1808,7 @@ CAmount GetDynamicSubsidy(CAmount nStandardReward, int nHeight)
 
     return (CAmount)(nStandardReward * nReductionFactor);
 }
-
+        
 CAmount GetProofOfWorkSubsidy()
 {
     int nBlockHeight = chainActive.Height() + 1;
@@ -1888,7 +1893,7 @@ CAmount GetProofOfWorkSubsidy()
     if (nBlockHeight > 4730400 && nBlockHeight <= 4993200) {
         return 55000 * COIN;
     }
-    else {
+    if (nBlockHeight > 4993200) {
     // Year 20+ (tail emission)
     return 1000 * COIN;
     }
