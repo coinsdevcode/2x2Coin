@@ -1780,8 +1780,8 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 
 CAmount GetDynamicSubsidy(CAmount nStandardReward, int nBlockHeight)
 {
-    // The rule only comes into effect from block 101600 onwards.
-    if (nBlockHeight < 101600) {
+    // The rule only comes into effect from block 105000 onwards.
+    if (nBlockHeight < 102000) {
         return nStandardReward;
     }
 
